@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" class="has-background-white-bis">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>NFTFuse</title>
+	
+	<style>
+		@import "https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css";
+	</style>
+
+	<script>
+		function generate(btn) {
+			btn.classList.add("is-loading");
+			btn.disabled = true;
+
+			let canvas = document.getElementById("nft-canvas");
+			let ctx = canvas.getContext("2d");
+
+			let loader = document.getElementById("loader");
+
+			let bg_element = document.createElement("img");
+			bg_element.src = `https://picsum.photos/id/${Math.floor(Math.random() * 1000)}/256/256`;
+
+			loader.appendChild(bg_element);
+
+			bg_element.addEventListener("load", (e) => {
+				ctx.drawImage(bg_element, 0, 0);
+
+				btn.classList.remove("is-loading");
+				btn.disabled = false;
+			});
+		}
+	</script>
+</head>
+<body>
+	<div class="container p-6">
+		<div class="container is-flex is-justify-content-center p-2">
+			<canvas class="box p-0" id="nft-canvas" height="256px" width="256px"></canvas>
+		</div>
+		
+		<div class="container is-flex is-justify-content-center p-2">
+			<button class="button is-primary" onclick="generate(this);">
+				Generate NFT
+			</button>
+		</div>
+
+		<div class="is-hidden" id="loader"></div>
+	</div>
+</body>
+</html>
