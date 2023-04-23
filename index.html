@@ -11,7 +11,30 @@
 		@import "https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css";
 	</style>
 
+	<script src="https://kit.fontawesome.com/a63f2fde7e.js" crossorigin="anonymous"></script>
+
 	<script>
+		var layers_count = 0;
+		var layer_data = {};
+
+		function add_layer() {
+			let layer_container = document.getElementById("layers");
+			let layer = document.createElement("div");
+
+			layers_count++;
+			layer.id = `layer-${layers_count}`;
+			layer.innerHTML = `
+				<hr class="has-background-grey-lighter">
+				<button class="button is-large is-info-lght">
+					<i class="fa-solid fa-plus"></i>
+				</button>
+				<div class="container is-flex" id="layer-${layers_count}-content"></div>
+			`;
+
+			layer_data[layers_count] = [];
+			layer_container.appendChild(layer);
+		}
+		
 		function generate(btn) {
 			btn.classList.add("is-loading");
 			btn.disabled = true;
@@ -22,7 +45,7 @@
 			let loader = document.getElementById("loader");
 
 			let bg_element = document.createElement("img");
-			bg_element.src = `https://picsum.photos/id/${Math.floor(Math.random() * 1000)}/256/256`;
+			bg_element.src = `https://picsum.photos/id/${Math.floor(Math.random() * 853)}/256/256`;
 
 			loader.appendChild(bg_element);
 
@@ -37,17 +60,37 @@
 </head>
 <body>
 	<div class="container p-6">
-		<div class="container is-flex is-justify-content-center p-2">
-			<canvas class="box p-0" id="nft-canvas" height="256px" width="256px"></canvas>
-		</div>
-		
-		<div class="container is-flex is-justify-content-center p-2">
-			<button class="button is-primary" onclick="generate(this);">
-				Generate NFT
-			</button>
+		<div class="container">
+			<div class="container is-flex is-justify-content-center p-2">
+				<canvas class="box p-0" id="nft-canvas" height="256px" width="256px"></canvas>
+			</div>
+			
+			<div class="container is-flex is-justify-content-center p-2">
+				<button class="button is-primary" onclick="generate(this);">
+					Generate NFT
+				</button>
+			</div>
 		</div>
 
-		<div class="is-hidden" id="loader"></div>
+		<hr class="has-background-grey-lighter">
+
+		<div class="container">
+			<h1 class="title">
+				Layers
+			</h1>
+			
+			<div class="container p-4" id="layers">
+				<div class="columns is-mobile is-multiline">
+					<button class="button is-large column is-outlined is-full is-primary has-text-black-bis has-background-primary-light" onclick="add_layer();">
+						<i class="fa-solid fa-plus"></i>
+						<span class="ml-2 has-text-weight-semibold">
+							Add a new layer
+						</span>
+					</button>
+				</div>
+			</div>
+		</div>
 	</div>
+	<div class="is-hidden" id="loader"></div>
 </body>
 </html>
