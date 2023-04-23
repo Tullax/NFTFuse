@@ -25,14 +25,41 @@
 			layer.id = `layer-${layers_count}`;
 			layer.innerHTML = `
 				<hr class="has-background-grey-lighter">
-				<button class="button is-large is-info-lght">
-					<i class="fa-solid fa-plus"></i>
-				</button>
-				<div class="container is-flex" id="layer-${layers_count}-content"></div>
+				<h2 class="title">
+					Layer ${layers_count}
+				</h2>
+				<div class="container is-flex" id="layer-${layers_count}-content">
+					<label for="layer-${layers_count}-files" class="button is-large is-info has-background-info-light is-outlined has-text-black-bis">
+						<i class="fa-solid fa-plus"></i>
+						<input class="is-hidden" id="layer-${layers_count}-files" type="file" accept="image/*" onchange="add_layer_files(${layers_count});" multiple>
+					</label>
+				</div>
 			`;
 
 			layer_data[layers_count] = [];
 			layer_container.appendChild(layer);
+		}
+
+		function add_layer_files(layer_index) {
+			if (!(layer_index in layer_data)) { return }
+			
+			let files_input = document.getElementById(`layer-${layer_index}-files`);
+			let layer_content_container = document.getElementById(`layer-${layer_index}-content`);
+
+			if (!(files_input.files)) { return }
+
+			for (let file of files_input.files) {
+				let fig_element = document.createElement("figure");
+				let image_element = document.createElement("img");
+
+				fig_element.classList.add("image");
+				
+				image_element.src = URL.createObjectURL(file);
+				layer_data[layer_index].push(image_element);
+
+				fig_element.appendChild(image_element);
+				layer_content_container.appendChild(fig_element);
+			}
 		}
 		
 		function generate(btn) {
