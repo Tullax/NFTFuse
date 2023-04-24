@@ -28,16 +28,23 @@
 				<h2 class="title">
 					Layer ${layers_count}
 				</h2>
-				<div class="container is-flex" id="layer-${layers_count}-content">
-					<label for="layer-${layers_count}-files" class="button is-large is-info has-background-info-light is-outlined has-text-black-bis">
+				<div class="container" id="layer-${layers_count}-content">
+					<label for="layer-${layers_count}-files" class="button is-large is-info has-background-info-light is-outlined has-text-black-bis m-2" style="width: 3.75rem;">
 						<i class="fa-solid fa-plus"></i>
 						<input class="is-hidden" id="layer-${layers_count}-files" type="file" accept="image/*" onchange="add_layer_files(${layers_count});" multiple>
 					</label>
 				</div>
 			`;
 
+			layer.classList.add("p-2");
+
 			layer_data[layers_count] = [];
 			layer_container.appendChild(layer);
+
+			scrollBy({
+				top: layer_container.scrollHeight,
+				behavior: "smooth"
+			});
 		}
 
 		function add_layer_files(layer_index) {
@@ -49,16 +56,15 @@
 			if (!(files_input.files)) { return }
 
 			for (let file of files_input.files) {
-				let fig_element = document.createElement("figure");
 				let image_element = document.createElement("img");
 
-				fig_element.classList.add("image");
-				
+				image_element.classList.add("button", "is-outlined", "p-0", "m-2");
+				image_element.style.height = "3.75rem";
+				image_element.style.width = "auto";
 				image_element.src = URL.createObjectURL(file);
+				
 				layer_data[layer_index].push(image_element);
-
-				fig_element.appendChild(image_element);
-				layer_content_container.appendChild(fig_element);
+				layer_content_container.appendChild(image_element);
 			}
 		}
 		
@@ -69,19 +75,18 @@
 			let canvas = document.getElementById("nft-canvas");
 			let ctx = canvas.getContext("2d");
 
-			let loader = document.getElementById("loader");
+			for (let layer_index of Object.keys(layer_data).sort()) {
+				layer = layer_data[layer_index];
 
-			let bg_element = document.createElement("img");
-			bg_element.src = `https://picsum.photos/id/${Math.floor(Math.random() * 853)}/256/256`;
+				if (!layer.length) { continue }
+				console.log(Math.floor(Math.random() * layer.length));
 
-			loader.appendChild(bg_element);
+				ctx.drawImage(layer[Math.floor(Math.random() * layer.length)], 0, 0, 256, 256);
 
-			bg_element.addEventListener("load", (e) => {
-				ctx.drawImage(bg_element, 0, 0);
+			}
 
-				btn.classList.remove("is-loading");
-				btn.disabled = false;
-			});
+			btn.classList.remove("is-loading");
+			btn.disabled = false;
 		}
 	</script>
 </head>
