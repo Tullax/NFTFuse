@@ -6,16 +6,35 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 	<title>NFTFuse</title>
+
+	<link rel="icon" href="icon.jpg">
 	
 	<style>
 		@import "https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css";
 	</style>
 
 	<script src="https://kit.fontawesome.com/a63f2fde7e.js" crossorigin="anonymous"></script>
+	<script src="jszip.min.js"></script>
 
 	<script>
 		var layers_count = 0;
 		var layer_data = {};
+
+		function export_nft() {
+			let canvas = document.getElementById("nft-canvas");
+			let image_data = canvas.toDataURL("image/png");
+
+			let download_element = document.createElement("a");
+			download_element.href = image_data;
+			download_element.download = "nftfuse_export.png";
+			download_element.click();
+		}
+
+		function resize_canvas(edge_length) {
+			let canvas = document.getElementById("nft-canvas");
+			canvas.height = edge_length;
+			canvas.width = edge_length;
+		}
 
 		function add_layer() {
 			let layer_container = document.getElementById("layers");
@@ -24,16 +43,16 @@
 			layers_count++;
 			layer.id = `layer-${layers_count}`;
 			layer.innerHTML = `
-				<hr class="has-background-grey-lighter">
-				<h2 class="title">
+				<h2 class="title is-size-4">
 					Layer ${layers_count}
 				</h2>
 				<div class="container" id="layer-${layers_count}-content">
-					<label for="layer-${layers_count}-files" class="button is-large is-info has-background-info-light is-outlined has-text-black-bis m-2" style="width: 3.75rem;">
+					<label for="layer-${layers_count}-files" class="button is-normal is-black m-2" style="width: 2.5rem;">
 						<i class="fa-solid fa-plus"></i>
 						<input class="is-hidden" id="layer-${layers_count}-files" type="file" accept="image/*" onchange="add_layer_files(${layers_count});" multiple>
 					</label>
 				</div>
+				<hr class="has-background-grey-lighter">
 			`;
 
 			layer.classList.add("p-2");
@@ -59,7 +78,7 @@
 				let image_element = document.createElement("img");
 
 				image_element.classList.add("button", "is-outlined", "p-0", "m-2");
-				image_element.style.height = "3.75rem";
+				image_element.style.height = "2.5rem";
 				image_element.style.width = "auto";
 				image_element.src = URL.createObjectURL(file);
 				
@@ -75,14 +94,14 @@
 			let canvas = document.getElementById("nft-canvas");
 			let ctx = canvas.getContext("2d");
 
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+
 			for (let layer_index of Object.keys(layer_data).sort()) {
 				layer = layer_data[layer_index];
 
 				if (!layer.length) { continue }
-				console.log(Math.floor(Math.random() * layer.length));
 
-				ctx.drawImage(layer[Math.floor(Math.random() * layer.length)], 0, 0, 256, 256);
-
+				ctx.drawImage(layer[Math.floor(Math.random() * layer.length)], 0, 0, canvas.height, canvas.width);
 			}
 
 			btn.classList.remove("is-loading");
@@ -91,16 +110,53 @@
 	</script>
 </head>
 <body>
-	<div class="container p-6">
+	<div class="container p-4">
 		<div class="container">
 			<div class="container is-flex is-justify-content-center p-2">
-				<canvas class="box p-0" id="nft-canvas" height="256px" width="256px"></canvas>
+				<canvas class="box p-0" id="nft-canvas" height="250px" width="250px"></canvas>
 			</div>
 			
 			<div class="container is-flex is-justify-content-center p-2">
-				<button class="button is-primary" onclick="generate(this);">
-					Generate NFT
+				<button class="button is-black m-2" onclick="generate(this);">
+					<i class="fa-solid fa-bolt"></i>
+					<span class="ml-2">
+						Generate NFT
+					</span>
 				</button>
+				<button class="button is-black m-2" onclick="export_nft();">
+					<i class="fa-solid fa-download"></i>
+					<span class="ml-2">
+						Download This NFT
+					</span>
+				</button>
+			</div>
+		</div>
+
+		<hr class="has-background-grey-lighter">
+
+		<div class="container">
+			<h1 class="title">
+				Options
+			</h1>
+
+			<div class="container p-4">
+				<h2 class="title is-size-4">
+					Size
+				</h2>
+				<div class="level">
+					<button class="button is-black is-small is-fullwidth m-2" onclick="resize_canvas(125);">
+						Small
+					</button>
+					<button class="button is-black is-normal is-fullwidth m-2" onclick="resize_canvas(250);">
+						Regular
+					</button>
+					<button class="button is-black is-medium is-fullwidth m-2" onclick="resize_canvas(375);">
+						Medium
+					</button>
+					<button class="button is-black is-large is-fullwidth m-2" onclick="resize_canvas(500);">
+						Large
+					</button>
+				</div>
 			</div>
 		</div>
 
@@ -111,16 +167,14 @@
 				Layers
 			</h1>
 			
-			<div class="container p-4" id="layers">
-				<div class="columns is-mobile is-multiline">
-					<button class="button is-large column is-outlined is-full is-primary has-text-black-bis has-background-primary-light" onclick="add_layer();">
-						<i class="fa-solid fa-plus"></i>
-						<span class="ml-2 has-text-weight-semibold">
-							Add a new layer
-						</span>
-					</button>
-				</div>
+			<div class="container" id="layers">
 			</div>
+			<button class="button is-large is-fullwidth is-black" onclick="add_layer();">
+				<i class="fa-solid fa-plus"></i>
+				<span class="ml-2 has-text-weight-semibold">
+					Add a new layer
+				</span>
+			</button>
 		</div>
 	</div>
 	<div class="is-hidden" id="loader"></div>
