@@ -14,19 +14,38 @@
 	</style>
 
 	<script src="https://kit.fontawesome.com/a63f2fde7e.js" crossorigin="anonymous"></script>
-	<script src="jszip.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" integrity="sha512-csNcFYJniKjJxRWRV1R7fvnXrycHP6qDR21mgz1ZP55xY5d+aHLfo9/FcGDQLfn2IfngbAHd8LdfsagcCqgTcQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 	<script>
 		var layers_count = 0;
 		var layer_data = {};
 
+		function generate_and_export_multiple(amount) {
+			let zip = new JSZip();
+			let nft_folder = zip.folder("nfts");
+
+			for (let nft_index = 0; nft_index < amount; nft_index++) {
+				generate_nft();
+				
+				let canvas = document.getElementById("nft-canvas");
+				let image_data = canvas.toDataURL("image/png");
+
+				nft_folder.file(`nft-${nft_index + 1}.png`, image_data.split(";base64,")[1], {base64: true});
+			}
+
+			zip.generateAsync({type: "blob"}).then((blob) => {
+				saveAs(blob, "nftfuse-export.zip");
+			});
+		}
+
 		function export_nft() {
 			let canvas = document.getElementById("nft-canvas");
 			let image_data = canvas.toDataURL("image/png");
-
 			let download_element = document.createElement("a");
+
 			download_element.href = image_data;
-			download_element.download = "nftfuse_export.png";
+			download_element.download = "nftfuse-export.png";
 			download_element.click();
 		}
 
@@ -72,7 +91,8 @@
 			let files_input = document.getElementById(`layer-${layer_index}-files`);
 			let layer_content_container = document.getElementById(`layer-${layer_index}-content`);
 
-			if (!(files_input.files)) { return }
+			if (!files_input.files) { return }
+			if (!(layer_index in layer_data)) {layer_data[layer_index] = []}
 
 			for (let file of files_input.files) {
 				let image_element = document.createElement("img");
@@ -86,11 +106,8 @@
 				layer_content_container.appendChild(image_element);
 			}
 		}
-		
-		function generate(btn) {
-			btn.classList.add("is-loading");
-			btn.disabled = true;
 
+		function generate_nft() {
 			let canvas = document.getElementById("nft-canvas");
 			let ctx = canvas.getContext("2d");
 
@@ -103,6 +120,13 @@
 
 				ctx.drawImage(layer[Math.floor(Math.random() * layer.length)], 0, 0, canvas.height, canvas.width);
 			}
+		}
+		
+		function generate(btn) {
+			btn.classList.add("is-loading");
+			btn.disabled = true;
+
+			generate_nft();
 
 			btn.classList.remove("is-loading");
 			btn.disabled = false;
@@ -126,7 +150,7 @@
 				<button class="button is-black m-2" onclick="export_nft();">
 					<i class="fa-solid fa-download"></i>
 					<span class="ml-2">
-						Download This NFT
+						Download NFT
 					</span>
 				</button>
 			</div>
@@ -136,26 +160,134 @@
 
 		<div class="container">
 			<h1 class="title">
-				Options
+				Export
 			</h1>
 
-			<div class="container p-4">
-				<h2 class="title is-size-4">
-					Size
-				</h2>
+			<div class="container px-4">
 				<div class="level">
-					<button class="button is-black is-small is-fullwidth m-2" onclick="resize_canvas(125);">
-						Small
+					<button class="button is-black is-fullwidth mx-2" onclick="generate_and_export_multiple(1);">
+						<i class="fa-solid fa-image"></i>
+						<span class="ml-2">
+							1 NFT
+						</span>
 					</button>
-					<button class="button is-black is-normal is-fullwidth m-2" onclick="resize_canvas(250);">
-						Regular
+					<button class="button is-black is-fullwidth mx-2" onclick="generate_and_export_multiple(5);">
+						<i class="fa-solid fa-images"></i>
+						<span class="ml-2">
+							5 NFT
+						</span>
 					</button>
-					<button class="button is-black is-medium is-fullwidth m-2" onclick="resize_canvas(375);">
-						Medium
+					<button class="button is-black is-fullwidth mx-2" onclick="generate_and_export_multiple(10);">
+						<i class="fa-solid fa-photo-film"></i>
+						<span class="ml-2">
+							10 NFT
+						</span>
 					</button>
-					<button class="button is-black is-large is-fullwidth m-2" onclick="resize_canvas(500);">
-						Large
+					<button class="button is-black is-fullwidth mx-2" onclick="generate_and_export_multiple(25);">
+						<i class="fa-solid fa-sd-card"></i>
+						<span class="ml-2">
+							25 NFT
+						</span>
 					</button>
+				</div>
+				<div class="level">
+					<button class="button is-black is-fullwidth mx-2" onclick="generate_and_export_multiple(50);">
+						<i class="fa-solid fa-box"></i>
+						<span class="ml-2">
+							50 NFT
+						</span>
+					</button>
+					<button class="button is-black is-fullwidth mx-2" onclick="generate_and_export_multiple(100);">
+						<i class="fa-solid fa-boxes"></i>
+						<span class="ml-2">
+							100 NFT
+						</span>
+					</button>
+					<button class="button is-black is-fullwidth mx-2" onclick="generate_and_export_multiple(250);">
+						<i class="fa-solid fa-van-shuttle"></i>
+						<span class="ml-2">
+							250 NFT
+						</span>
+					</button>
+					<button class="button is-black is-fullwidth mx-2" onclick="generate_and_export_multiple(500);">
+						<i class="fa-solid fa-truck-moving"></i>
+						<span class="ml-2">
+							500 NFT
+						</span>
+					</button>
+				</div>
+				<div class="field has-addons mx-2">
+					<p class="control">
+						<a class="button is-black is-static">
+							Custom Amount
+						</a>
+					</p>
+					<p class="control is-expanded">
+						<input class="input is-black" id="export-size-input" type="number" min="1" max="100000" placeholder="Amount">
+					</p>
+					<p class="control">
+						<button class="button is-black" onclick="generate_and_export_multiple(document.getElementById('export-size-input').value); document.getElementById('export-size-input').value = '';">
+							<i class="fa-solid fa-file-export"></i>
+							<span class="ml-2">
+								Export
+							</span>
+						</button>
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<hr class="has-background-grey-lighter">
+
+		<div class="container">
+			<h1 class="title">
+				Size
+			</h1>
+
+			<div class="container px-4">
+				<div class="level">
+					<button class="button is-black is-fullwidth mx-2" onclick="resize_canvas(125);">
+						<i class="fa-solid fa-bug"></i>
+						<span class="ml-2">
+							Small (125px)
+						</span>
+					</button>
+					<button class="button is-black is-fullwidth mx-2" onclick="resize_canvas(250);">
+						<i class="fa-solid fa-crow"></i>
+						<span class="ml-2">
+							Regular (250px)
+						</span>
+					</button>
+					<button class="button is-black is-fullwidth mx-2" onclick="resize_canvas(375);">
+						<i class="fa-solid fa-horse"></i>
+						<span class="ml-2">
+							Medium (375px)
+						</span>
+					</button>
+					<button class="button is-black is-fullwidth mx-2" onclick="resize_canvas(500);">
+						<i class="fa-solid fa-hippo"></i>
+						<span class="ml-2">
+							Large (500px)
+						</span>
+					</button>
+				</div>
+				<div class="field has-addons mx-2">
+					<p class="control">
+						<a class="button is-black is-static">
+							Custom Size
+						</a>
+					</p>
+					<p class="control is-expanded">
+						<input class="input is-black" id="custom-size-input" type="number" min="8" placeholder="Size in pixels">
+					</p>
+					<p class="control">
+						<button class="button is-black" onclick="resize_canvas(document.getElementById('custom-size-input').value); document.getElementById('custom-size-input').value = '';">
+							<i class="fa-solid fa-maximize"></i>
+							<span class="ml-2">
+								Change
+							</span>
+						</button>
+					</p>
 				</div>
 			</div>
 		</div>
@@ -170,9 +302,9 @@
 			<div class="container" id="layers">
 			</div>
 			<button class="button is-large is-fullwidth is-black" onclick="add_layer();">
-				<i class="fa-solid fa-plus"></i>
+				<i class="fa-solid fa-layer-group"></i>
 				<span class="ml-2 has-text-weight-semibold">
-					Add a new layer
+					New Layer
 				</span>
 			</button>
 		</div>
